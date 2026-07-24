@@ -70,6 +70,45 @@ tests green) with JDK 17 + SDK 35.
 3. To test the widget, long-press the home screen, add the Stromschnelle
    widget, and confirm it reflects the same priority-sorted list as the app.
 
+## Versioning & releases
+
+The version has a **single source of truth**: `version.properties` at the repo
+root, which holds only `versionName=x.y.z`. The integer `versionCode` Android
+requires is *derived* in `app/build.gradle.kts` as
+`major*10000 + minor*100 + patch` (minor and patch must stay < 100), so it can
+never move backwards as long as the semver increases. Never edit `versionCode`
+by hand — bump `versionName` (the release script does this for you).
+
+### Cutting a release
+
+Releases are signed and published to GitHub Releases so that
+[Obtainium](https://github.com/ImranR98/Obtainium) can install and auto-update
+the app directly from GitHub (point Obtainium at this repo's URL). Each release
+carries the **signed APK as an asset** — that is the file Obtainium downloads.
+
+One-time setup: copy `app/keystore.properties.example` to
+`app/keystore.properties` and fill in your keystore path and passwords
+(git-ignored; see the `android-signing-backup` repo for the encrypted keystore
+and restore instructions).
+
+Then:
+
+```bash
+scripts/release.sh
+```
+
+The script:
+
+1. Verifies you are on a clean, up-to-date `main` and that signing is configured.
+2. Proposes the next patch version (e.g. `v0.1.0 -> v0.1.1`); accept it or type an
+   explicit `x.y.z`. It must be greater than the current version.
+3. Writes `version.properties` and creates a `Release vX.Y.Z` commit.
+4. Builds the **signed** release APK and runs the unit tests. **If the build or
+   tests fail, the release commit is rolled back** and nothing is tagged, pushed,
+   or published.
+5. On success: tags `vX.Y.Z`, pushes `main` + the tag, and creates the GitHub
+   release with `stromschnelle-vX.Y.Z.apk` attached.
+
 ## Data retention
 
 Completed to-dos are never deleted from the database. Completing a

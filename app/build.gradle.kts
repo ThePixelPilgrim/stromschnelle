@@ -1,9 +1,37 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
 }
+
+// Single source of truth: version.properties holds only versionName=x.y.z.
+// versionCode is derived so it always increases as long as x.y.z increases.
+val versionProps = Properties().apply {
+    rootProject.file("version.properties").inputStream().use { load(it) }
+}
+val appVersionName: String = versionProps.getProperty("versionName")
+    ?: error("versionName missing from version.properties")
+val appVersionCode: Int = appVersionName.trim().split(".").let { parts ->
+    require(parts.size == 3) { "versionName must be x.y.z, got '$appVersionName'" }
+    val (major, minor, patch) = parts.map {
+        it.toIntOrNull() ?: error("versionName component '$it' is not an integer")
+    }
+    require(minor in 0..99 && patch in 0..99) {
+        "minor and patch must each be < 100 (got $appVersionName)"
+    }
+    major * 10000 + minor * 100 + patch
+}
+
+// Optional release signing: present only when app/keystore.properties exists
+// (kept out of git). Without it, assembleRelease produces an unsigned APK.
+val keystoreProps = Properties().apply {
+    val f = rootProject.file("app/keystore.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+val hasReleaseSigning = keystoreProps.getProperty("storeFile") != null
 
 android {
     namespace = "de.nereide.stromschnelle"
@@ -13,10 +41,21 @@ android {
         applicationId = "de.nereide.stromschnelle"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
@@ -26,6 +65,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
