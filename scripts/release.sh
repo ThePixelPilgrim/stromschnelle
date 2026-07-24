@@ -71,16 +71,30 @@ fi
 # --- version handling -------------------------------------------------------
 CURRENT="$(grep -E '^versionName=' "$VERSION_FILE" | head -1 | cut -d= -f2- | tr -d '[:space:]')"
 [[ "$CURRENT" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Current versionName '$CURRENT' is not x.y.z."
-IFS=. read -r MA MI PA <<<"$CURRENT"
-SUGGESTED="$MA.$MI.$((PA + 1))"
 
-# semver "strictly greater than current" check
+# semver "strictly greater than" check
 version_gt() { # $1 > $2 ?
     [[ "$1" != "$2" ]] && [[ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | tail -1)" == "$1" ]]
 }
 
+# The last *released* version is the highest existing vX.Y.Z tag (may be none).
+LATEST_TAG="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' | sed 's/^v//' | sort -V | tail -1)"
+
+# If the current versionName has not been tagged yet, release it as-is
+# (this is how the very first release works). Otherwise propose the next patch.
+if [[ -z "$(git tag -l "v$CURRENT")" ]]; then
+    SUGGESTED="$CURRENT"
+else
+    IFS=. read -r MA MI PA <<<"$CURRENT"
+    SUGGESTED="$MA.$MI.$((PA + 1))"
+fi
+
 echo
-info "Current version: v$CURRENT"
+if [[ -z "$LATEST_TAG" ]]; then
+    info "No previous release. Current version: v$CURRENT"
+else
+    info "Last released: v$LATEST_TAG   ·   version.properties: v$CURRENT"
+fi
 read -rp "Release v$SUGGESTED?  [y]es / [n]o / or type an explicit x.y.z: " REPLY
 case "$REPLY" in
     y|Y|yes|YES|"") NEW="$SUGGESTED" ;;
@@ -91,10 +105,13 @@ esac
 [[ "$NEW" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "'$NEW' is not a valid x.y.z version."
 IFS=. read -r NMA NMI NPA <<<"$NEW"
 { [[ "$NMI" -lt 100 ]] && [[ "$NPA" -lt 100 ]]; } || die "minor and patch must be < 100 (got $NEW)."
-version_gt "$NEW" "$CURRENT" || die "New version v$NEW must be greater than current v$CURRENT."
 
 TAG="v$NEW"
 git rev-parse "$TAG" >/dev/null 2>&1 && die "Tag $TAG already exists."
+# Must exceed the last released version (skipped when there is no prior release).
+if [[ -n "$LATEST_TAG" ]]; then
+    version_gt "$NEW" "$LATEST_TAG" || die "New version v$NEW must be greater than last released v$LATEST_TAG."
+fi
 
 echo
 info "About to release: v$CURRENT  ->  v$NEW  (tag $TAG)"
@@ -116,7 +133,9 @@ info "Writing version.properties (versionName=$NEW)…"
 tmp="$(mktemp)"
 sed "s/^versionName=.*/versionName=$NEW/" "$VERSION_FILE" >"$tmp" && mv "$tmp" "$VERSION_FILE"
 git add "$VERSION_FILE"
-git commit --quiet -m "Release $TAG"
+# --allow-empty: on the first release the versionName may already equal the
+# target, so there is nothing to stage — we still want a "Release vX.Y.Z" marker.
+git commit --quiet --allow-empty -m "Release $TAG"
 ok "Release commit created."
 
 # --- build, sign, test ------------------------------------------------------
