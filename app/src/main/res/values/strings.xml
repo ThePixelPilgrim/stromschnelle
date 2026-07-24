@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Stromschnelle</string>
+
+    <!-- Common -->
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="ok">OK</string>
+    <string name="back">Back</string>
+    <string name="close">Close</string>
+
+    <!-- Todo list screen -->
+    <string name="todo_list_title">To-dos</string>
+    <string name="todo_list_empty">No to-dos yet. Tap + to add one.</string>
+    <string name="todo_add_fab_description">Add to-do</string>
+    <string name="todo_completed_section_title">Completed</string>
+    <string name="todo_view_completed">View completed</string>
+    <string name="todo_no_completed">No completed to-dos yet.</string>
+    <string name="todo_mark_complete">Mark as complete</string>
+    <string name="todo_mark_incomplete">Mark as not complete</string>
+    <string name="todo_drag_handle_description">Drag to reorder</string>
+
+    <!-- Todo edit / detail screen -->
+    <string name="todo_edit_title_new">New to-do</string>
+    <string name="todo_edit_title_existing">Edit to-do</string>
+    <string name="todo_title_label">Title</string>
+    <string name="todo_title_placeholder">What needs to be done?</string>
+    <string name="todo_description_label">Description</string>
+    <string name="todo_description_placeholder">Add more details (optional)</string>
+    <string name="todo_icon_label">Icon</string>
+    <string name="todo_choose_icon">Choose icon</string>
+    <string name="todo_title_required_error">Title is required</string>
+    <string name="todo_created_at_label">Created</string>
+    <string name="todo_completed_at_label">Completed</string>
+
+    <!-- Settings screen -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_grace_period_title">Keep completed to-dos visible</string>
+    <string name="settings_grace_period_description">
+        How long a completed to-do stays visible in the main list before moving to the completed history
+    </string>
+    <string name="settings_grace_period_none">Hide immediately</string>
+    <string name="settings_grace_period_1h">1 hour</string>
+    <string name="settings_grace_period_6h">6 hours</string>
+    <string name="settings_grace_period_24h">24 hours</string>
+    <string name="settings_grace_period_3d">3 days</string>
+    <string name="settings_grace_period_7d">7 days</string>
+
+    <!-- Widget -->
+    <string name="widget_description">Shows your active to-dos and lets you check them off.</string>
+    <string name="widget_empty_state">All done!</string>
+    <string name="widget_open_app">Open Stromschnelle</string>
+
+    <!-- Icon names for TodoIcon picker (content descriptions) -->
+    <string name="icon_star">Star</string>
+    <string name="icon_flag">Flag</string>
+    <string name="icon_checklist">Checklist</string>
+    <string name="icon_home">Home</string>
+    <string name="icon_work">Work</string>
+    <string name="icon_groceries">Groceries</string>
+    <string name="icon_payments">Payments</string>
+    <string name="icon_favorite">Favorite</string>
+    <string name="icon_fitness">Fitness</string>
+    <string name="icon_idea">Idea</string>
+    <string name="icon_calendar">Calendar</string>
+    <string name="icon_urgent">Urgent</string>
+</resources>
