@@ -1,12 +1,13 @@
 package de.nereide.stromschnelle.widget
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.text.FontWeight
+import androidx.glance.text.TextDecoration
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.action.actionParametersOf
@@ -61,7 +62,10 @@ class StromschnelleWidget : GlanceAppWidget() {
 
     @Composable
     private fun TodoRow(todo: Todo) {
-        val deepLinkUri = Uri.parse("stromschnelle://todo/${todo.id}")
+        val openDetailIntent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("stromschnelle://todo/${todo.id}")
+        )
         val icon = TodoIcon.fromKey(todo.iconKey)
         val isCompleted = todo.completedAt != null
 
@@ -87,7 +91,7 @@ class StromschnelleWidget : GlanceAppWidget() {
                 ),
                 modifier = GlanceModifier
                     .fillMaxWidth()
-                    .clickable(actionStartActivity(deepLinkUri))
+                    .clickable(actionStartActivity(openDetailIntent))
             )
             Spacer(modifier = GlanceModifier.width(8.dp))
             Text(

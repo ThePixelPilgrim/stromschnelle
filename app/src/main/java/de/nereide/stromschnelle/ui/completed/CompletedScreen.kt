@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Undo
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,7 +43,7 @@ fun CompletedScreen(
                 title = { Text("Completed") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
@@ -83,7 +83,7 @@ fun CompletedScreen(
                     },
                     trailingContent = {
                         IconButton(onClick = { viewModel.uncomplete(todo.id) }) {
-                            Icon(Icons.Default.Undo, contentDescription = "Restore")
+                            Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = "Restore")
                         }
                     }
                 )

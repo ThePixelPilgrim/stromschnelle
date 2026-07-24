@@ -38,21 +38,36 @@ Room/DataStore. ViewModels obtain their dependencies via
 
 ## Build & run
 
-1. Open the project root in Android Studio (Koala/Ladybug or newer).
-2. Let Android Studio sync Gradle. The binary `gradle/wrapper/gradle-wrapper.jar`
-   is not committed to version control (binaries don't belong in git
-   history); Android Studio regenerates it automatically on first sync.
-   If you're building from the command line instead and the wrapper jar is
-   missing, regenerate it with a locally installed Gradle:
+### From the command line (no IDE required)
 
-   ```
-   gradle wrapper --gradle-version 8.9
-   ```
+Requirements:
 
-   then use `./gradlew` as usual (e.g. `./gradlew assembleDebug`).
-3. Run the `app` configuration on a device or emulator (API level per
-   `app/build.gradle.kts`).
-4. To test the widget, long-press the home screen, add the Stromschnelle
+- **JDK 17** (AGP 8.7 does not run on JDK 24/25). Point `JAVA_HOME` at a
+  17 install, e.g. `export JAVA_HOME=/usr/lib/jvm/java-17-temurin-jdk`.
+- **Android SDK** with `platforms;android-35` and `build-tools;35.0.0`.
+  Either set `ANDROID_HOME`/`ANDROID_SDK_ROOT`, or create a `local.properties`
+  file in the project root containing `sdk.dir=/path/to/Android/Sdk`
+  (`local.properties` is git-ignored). Missing SDK packages are downloaded
+  automatically on first build once licenses are accepted
+  (`sdkmanager --licenses`).
+
+Then build and test with the committed Gradle wrapper:
+
+```bash
+./gradlew assembleDebug        # produces app/build/outputs/apk/debug/app-debug.apk
+./gradlew testDebugUnitTest    # runs the repository unit tests
+```
+
+This build has been verified end-to-end from the CLI (APK assembled, unit
+tests green) with JDK 17 + SDK 35.
+
+### From Android Studio
+
+1. Open the project root in Android Studio (Koala/Ladybug or newer) and let it
+   sync Gradle. The Gradle wrapper (`gradle/wrapper/gradle-wrapper.jar`) is
+   committed, so no bootstrapping step is needed.
+2. Run the `app` configuration on a device or emulator (`minSdk 26`).
+3. To test the widget, long-press the home screen, add the Stromschnelle
    widget, and confirm it reflects the same priority-sorted list as the app.
 
 ## Data retention
