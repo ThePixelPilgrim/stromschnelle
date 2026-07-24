@@ -14,6 +14,7 @@ import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
+import androidx.glance.appwidget.CheckBox
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.lazy.LazyColumn
@@ -126,16 +127,12 @@ class StromschnelleWidget : GlanceAppWidget() {
                     .clickable(actionStartActivity(openDetailIntent))
             )
             Spacer(modifier = GlanceModifier.width(8.dp))
-            Text(
-                text = if (isCompleted) "☑" else "☐",
-                style = TextStyle(
-                    color = if (isCompleted) GlanceTheme.colors.primary else GlanceTheme.colors.onSurface,
-                    fontSize = 18.sp
-                ),
-                modifier = GlanceModifier.clickable(
-                    actionRunCallback<ToggleCompleteAction>(
-                        actionParametersOf(ToggleCompleteAction.todoIdKey to todo.id)
-                    )
+            // Glance's native CheckBox handles the toggle action wiring and gives
+            // a full-size touch target (unlike a bare clickable Text glyph).
+            CheckBox(
+                checked = isCompleted,
+                onCheckedChange = actionRunCallback<ToggleCompleteAction>(
+                    actionParametersOf(ToggleCompleteAction.todoIdKey to todo.id)
                 )
             )
         }
