@@ -22,6 +22,7 @@ import androidx.glance.appwidget.lazy.items
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
@@ -49,30 +50,37 @@ class StromschnelleWidget : GlanceAppWidget() {
             // GlanceTheme supplies Material3 colors (incl. an opaque widgetBackground)
             // that adapt to light/dark automatically.
             GlanceTheme {
-                val rootModifier = GlanceModifier
-                    .fillMaxSize()
-                    .appWidgetBackground()
-                    .background(GlanceTheme.colors.widgetBackground)
-                    .cornerRadius(16.dp)
-
-                if (todos.isEmpty()) {
-                    Column(
-                        modifier = rootModifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "No todos",
-                            style = TextStyle(
-                                color = GlanceTheme.colors.onSurfaceVariant,
-                                fontSize = 14.sp
+                // Background/clip live on an outer Box; the LazyColumn stays a bare
+                // scroll container so the launcher can scroll it (like the Calendar
+                // widget) when there are more todos than fit.
+                Box(
+                    modifier = GlanceModifier
+                        .fillMaxSize()
+                        .appWidgetBackground()
+                        .background(GlanceTheme.colors.widgetBackground)
+                        .cornerRadius(16.dp)
+                ) {
+                    if (todos.isEmpty()) {
+                        Column(
+                            modifier = GlanceModifier.fillMaxSize().padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "No todos",
+                                style = TextStyle(
+                                    color = GlanceTheme.colors.onSurfaceVariant,
+                                    fontSize = 14.sp
+                                )
                             )
-                        )
-                    }
-                } else {
-                    LazyColumn(modifier = rootModifier.padding(vertical = 4.dp)) {
-                        items(todos, itemId = { it.id }) { todo ->
-                            TodoRow(todo)
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = GlanceModifier.fillMaxSize().padding(vertical = 4.dp)
+                        ) {
+                            items(todos, itemId = { it.id }) { todo ->
+                                TodoRow(todo)
+                            }
                         }
                     }
                 }
