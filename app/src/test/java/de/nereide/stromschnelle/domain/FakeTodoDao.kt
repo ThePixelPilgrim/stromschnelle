@@ -24,6 +24,14 @@ class FakeTodoDao : TodoDao {
             )
     }
 
+    override suspend fun visibleList(cutoff: Long): List<Todo> =
+        state.value.values
+            .filter { it.completedAt == null || it.completedAt >= cutoff }
+            .sortedWith(
+                compareByDescending<Todo> { it.completedAt == null }
+                    .thenBy { it.sortIndex }
+            )
+
     override fun completed(): Flow<List<Todo>> = state.map { todos ->
         todos.values
             .filter { it.completedAt != null }

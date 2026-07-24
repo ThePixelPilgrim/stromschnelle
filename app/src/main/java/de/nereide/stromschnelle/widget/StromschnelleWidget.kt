@@ -3,6 +3,7 @@ package de.nereide.stromschnelle.widget
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,7 +45,13 @@ class StromschnelleWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val repository = (context.applicationContext as StromschnelleApp).container.todoRepository
-        val todos = repository.visibleTodos.first()
+        // Direct one-shot read (not Flow.first()) so a refresh right after a
+        // toggle always reflects the committed state.
+        val todos = repository.visibleTodosNow()
+        Log.i(
+            "StromschnelleWidget",
+            "provideGlance render: " + todos.joinToString { "${it.id}:${if (it.completedAt != null) "done" else "open"}" }
+        )
 
         provideContent {
             // GlanceTheme supplies Material3 colors (incl. an opaque widgetBackground)

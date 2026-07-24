@@ -22,6 +22,20 @@ interface TodoDao {
     )
     fun visible(cutoff: Long): Flow<List<Todo>>
 
+    /**
+     * One-shot equivalent of [visible]. Reading committed rows directly (rather
+     * than awaiting a Flow's first emission) avoids Room invalidation timing, so
+     * the widget always renders the current state right after a write.
+     */
+    @Query(
+        """
+        SELECT * FROM todos
+        WHERE completedAt IS NULL OR completedAt >= :cutoff
+        ORDER BY (completedAt IS NULL) DESC, sortIndex ASC
+        """
+    )
+    suspend fun visibleList(cutoff: Long): List<Todo>
+
     @Query("SELECT * FROM todos WHERE completedAt IS NOT NULL ORDER BY completedAt DESC")
     fun completed(): Flow<List<Todo>>
 

@@ -4,6 +4,7 @@ import de.nereide.stromschnelle.data.SettingsRepository
 import de.nereide.stromschnelle.data.Todo
 import de.nereide.stromschnelle.data.TodoDao
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 
@@ -18,6 +19,11 @@ class DefaultTodoRepository(
         settings.gracePeriodMillis.flatMapLatest { grace ->
             dao.visible(clock() - grace)
         }
+
+    override suspend fun visibleTodosNow(): List<Todo> {
+        val grace = settings.gracePeriodMillis.first()
+        return dao.visibleList(clock() - grace)
+    }
 
     override val completedTodos: Flow<List<Todo>> = dao.completed()
 

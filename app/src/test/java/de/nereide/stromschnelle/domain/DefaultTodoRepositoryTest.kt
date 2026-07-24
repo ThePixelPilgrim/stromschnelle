@@ -89,6 +89,19 @@ class DefaultTodoRepositoryTest {
         }
 
     @Test
+    fun `visibleTodosNow reflects a just-completed toggle immediately`() = runTest {
+        settings.setGracePeriodMillis(60_000L)
+        val id = repository.add("Task", "", "STAR")
+
+        assertNull(repository.visibleTodosNow().first { it.id == id }.completedAt)
+
+        repository.complete(id)
+        // The one-shot read must see the committed completion right away
+        // (this is what keeps the widget's post-toggle refresh reliable).
+        assertNotNull(repository.visibleTodosNow().first { it.id == id }.completedAt)
+    }
+
+    @Test
     fun `reorder rewrites sortIndex to match given id order`() = runTest {
         val a = repository.add("A", "", "STAR")
         val b = repository.add("B", "", "FLAG")

@@ -12,6 +12,9 @@ interface TodoRepository {
     /** Active todos plus recently-completed ones inside the settings grace window. */
     val visibleTodos: Flow<List<Todo>>
 
+    /** One-shot snapshot of the visible todos (used by the widget for reliable refresh). */
+    suspend fun visibleTodosNow(): List<Todo>
+
     /** All completed todos, newest completion first. */
     val completedTodos: Flow<List<Todo>>
 
