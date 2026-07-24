@@ -80,7 +80,7 @@ class TodoEditViewModel(
                     )
                 )
             }
-            refreshWidget(viewModelScope, context)
+            refreshWidget(context)
             _uiState.value = _uiState.value.copy(saved = true)
         }
     }

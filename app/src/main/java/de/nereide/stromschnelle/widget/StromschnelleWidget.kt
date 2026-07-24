@@ -5,6 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -38,22 +40,26 @@ import androidx.glance.text.TextStyle
 import de.nereide.stromschnelle.StromschnelleApp
 import de.nereide.stromschnelle.data.Todo
 import de.nereide.stromschnelle.data.TodoIcon
-import kotlinx.coroutines.flow.first
 
 /** Home-screen widget listing visible todos with inline completion toggles. */
 class StromschnelleWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val repository = (context.applicationContext as StromschnelleApp).container.todoRepository
-        // Direct one-shot read (not Flow.first()) so a refresh right after a
-        // toggle always reflects the committed state.
-        val todos = repository.visibleTodosNow()
-        Log.i(
-            "StromschnelleWidget",
-            "provideGlance render: " + todos.joinToString { "${it.id}:${if (it.completedAt != null) "done" else "open"}" }
-        )
+        // Initial one-shot read so the first frame renders synchronously with data.
+        val initialTodos = repository.visibleTodosNow()
 
         provideContent {
+            // IMPORTANT: `provideGlance` is only invoked once per widget session;
+            // `updateAll` merely recomposes the composition below. Data must
+            // therefore be observed INSIDE the composition — the Room-backed Flow
+            // emits on every DB change and drives recomposition, so the widget
+            // repaints after any mutation (app-side or widget-side).
+            val todos by repository.visibleTodos.collectAsState(initial = initialTodos)
+            Log.i(
+                "StromschnelleWidget",
+                "provideGlance render: " + todos.joinToString { "${it.id}:${if (it.completedAt != null) "done" else "open"}" }
+            )
             // GlanceTheme supplies Material3 colors (incl. an opaque widgetBackground)
             // that adapt to light/dark automatically.
             GlanceTheme {

@@ -30,7 +30,7 @@ class CompletedViewModel(
     fun uncomplete(id: Long) {
         viewModelScope.launch {
             repository.uncomplete(id)
-            refreshWidget(viewModelScope, context)
+            refreshWidget(context)
         }
     }
 

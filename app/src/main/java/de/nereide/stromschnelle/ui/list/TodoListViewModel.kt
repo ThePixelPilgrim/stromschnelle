@@ -33,14 +33,14 @@ class TodoListViewModel(
     fun toggleComplete(todo: Todo) {
         viewModelScope.launch {
             if (todo.completedAt == null) repository.complete(todo.id) else repository.uncomplete(todo.id)
-            refreshWidget(viewModelScope, context)
+            refreshWidget(context)
         }
     }
 
     fun reorder(orderedIds: List<Long>) {
         viewModelScope.launch {
             repository.reorder(orderedIds)
-            refreshWidget(viewModelScope, context)
+            refreshWidget(context)
         }
     }
 
