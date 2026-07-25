@@ -2,10 +2,14 @@ package de.nereide.stromschnelle.ui.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.text.style.TextDecoration
@@ -31,12 +35,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.nereide.stromschnelle.data.Todo
 import de.nereide.stromschnelle.data.TodoIcon
+import de.nereide.stromschnelle.ui.common.PriorityBadge
+import de.nereide.stromschnelle.ui.common.PriorityDimension
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,7 +92,9 @@ fun TodoListScreen(
                 .fillMaxSize()
                 .padding(padding),
             onOpenTodo = onOpenTodo,
-            onToggle = viewModel::toggleComplete
+            onToggle = viewModel::toggleComplete,
+            onCycleImportance = viewModel::cycleImportance,
+            onCycleEffort = viewModel::cycleEffort
         )
     }
 }
@@ -95,7 +104,9 @@ private fun TodoList(
     todos: List<Todo>,
     modifier: Modifier = Modifier,
     onOpenTodo: (Long) -> Unit,
-    onToggle: (Todo) -> Unit
+    onToggle: (Todo) -> Unit,
+    onCycleImportance: (Long) -> Unit,
+    onCycleEffort: (Long) -> Unit
 ) {
     LazyColumn(modifier = modifier) {
         items(todos, key = { it.id }) { todo ->
@@ -109,11 +120,23 @@ private fun TodoList(
                         else MaterialTheme.colorScheme.surface
                     ),
                 leadingContent = {
-                    Icon(
-                        imageVector = TodoIcon.fromKey(todo.iconKey).imageVector,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        PriorityBadge(
+                            value = todo.importance,
+                            dimension = PriorityDimension.IMPORTANCE,
+                            onClick = { onCycleImportance(todo.id) },
+                            dimmed = isCompleted
+                        )
+                        PriorityBadge(
+                            value = todo.effort,
+                            dimension = PriorityDimension.EFFORT,
+                            onClick = { onCycleEffort(todo.id) },
+                            dimmed = isCompleted
+                        )
+                    }
                 },
                 headlineContent = {
                     Text(
@@ -125,7 +148,18 @@ private fun TodoList(
                     { Text(text = todo.description) }
                 } else null,
                 trailingContent = {
-                    Checkbox(checked = isCompleted, onCheckedChange = { onToggle(todo) })
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Inert spacer between the title and the checkbox: a tap that
+                        // misses the checkbox lands here and does nothing.
+                        Icon(
+                            imageVector = TodoIcon.fromKey(todo.iconKey).imageVector,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Checkbox(checked = isCompleted, onCheckedChange = { onToggle(todo) })
+                    }
                 }
             )
         }

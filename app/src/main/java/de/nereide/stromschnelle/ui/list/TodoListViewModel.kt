@@ -37,6 +37,20 @@ class TodoListViewModel(
         }
     }
 
+    fun cycleImportance(id: Long) {
+        viewModelScope.launch {
+            repository.cycleImportance(id)
+            refreshWidget(context)
+        }
+    }
+
+    fun cycleEffort(id: Long) {
+        viewModelScope.launch {
+            repository.cycleEffort(id)
+            refreshWidget(context)
+        }
+    }
+
     companion object {
         val Factory = viewModelFactory {
             initializer {
