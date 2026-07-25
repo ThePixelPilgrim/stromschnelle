@@ -1,5 +1,6 @@
 package de.nereide.stromschnelle.ui.detail
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.nereide.stromschnelle.data.TodoIcon
+import de.nereide.stromschnelle.ui.common.PriorityBadge
+import de.nereide.stromschnelle.ui.common.PriorityDimension
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -91,6 +94,15 @@ fun TodoDetailScreen(
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(text = todo.title, style = MaterialTheme.typography.headlineSmall)
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                PriorityBadge(value = todo.importance, dimension = PriorityDimension.IMPORTANCE)
+                PriorityBadge(value = todo.effort, dimension = PriorityDimension.EFFORT)
             }
 
             androidx.compose.foundation.layout.Spacer(modifier = Modifier.padding(top = 16.dp))

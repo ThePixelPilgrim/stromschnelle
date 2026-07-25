@@ -2,6 +2,7 @@ package de.nereide.stromschnelle.ui.edit
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,6 +23,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -83,6 +87,18 @@ fun TodoEditScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(16.dp))
+            PriorityChooser(
+                label = "Importance",
+                value = uiState.importance,
+                onValueChange = viewModel::onImportanceChange
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            PriorityChooser(
+                label = "Effort",
+                value = uiState.effort,
+                onValueChange = viewModel::onEffortChange
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             Text(text = "Icon", style = MaterialTheme.typography.labelLarge)
             androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(8.dp))
             LazyVerticalGrid(
@@ -121,6 +137,34 @@ fun TodoEditScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Save")
+            }
+        }
+    }
+}
+
+/**
+ * Direct 1|2|3 selection. Rotation is the right gesture where space is scarce;
+ * here there is room, and direct selection avoids paying two taps to go down.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PriorityChooser(
+    label: String,
+    value: Int,
+    onValueChange: (Int) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(text = label, style = MaterialTheme.typography.labelLarge)
+        Spacer(modifier = Modifier.height(4.dp))
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            (1..3).forEach { option ->
+                SegmentedButton(
+                    selected = value == option,
+                    onClick = { onValueChange(option) },
+                    shape = SegmentedButtonDefaults.itemShape(index = option - 1, count = 3)
+                ) {
+                    Text(option.toString())
+                }
             }
         }
     }

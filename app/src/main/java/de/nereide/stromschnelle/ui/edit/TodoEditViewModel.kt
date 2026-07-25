@@ -22,6 +22,8 @@ data class TodoEditUiState(
     val title: String = "",
     val description: String = "",
     val icon: TodoIcon = TodoIcon.STAR,
+    val importance: Int = 2,
+    val effort: Int = 2,
     val loading: Boolean = false,
     val saved: Boolean = false
 )
@@ -44,6 +46,8 @@ class TodoEditViewModel(
                             title = todo.title,
                             description = todo.description,
                             icon = TodoIcon.fromKey(todo.iconKey),
+                            importance = todo.importance,
+                            effort = todo.effort,
                             loading = false
                         )
                     }
@@ -64,19 +68,31 @@ class TodoEditViewModel(
         _uiState.value = _uiState.value.copy(icon = icon)
     }
 
+    fun onImportanceChange(value: Int) {
+        _uiState.value = _uiState.value.copy(importance = value)
+    }
+
+    fun onEffortChange(value: Int) {
+        _uiState.value = _uiState.value.copy(effort = value)
+    }
+
     fun save() {
         val state = _uiState.value
         if (state.title.isBlank()) return
         viewModelScope.launch {
             if (id == null) {
-                repository.add(state.title, state.description, state.icon.key)
+                val newId = repository.add(state.title, state.description, state.icon.key)
+                repository.setImportance(newId, state.importance)
+                repository.setEffort(newId, state.effort)
             } else {
                 val current = repository.todo(id).first() ?: return@launch
                 repository.update(
                     current.copy(
                         title = state.title,
                         description = state.description,
-                        iconKey = state.icon.key
+                        iconKey = state.icon.key,
+                        importance = state.importance,
+                        effort = state.effort
                     )
                 )
             }

@@ -1,5 +1,7 @@
 package de.nereide.stromschnelle.ui.completed
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,11 +20,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import de.nereide.stromschnelle.data.TodoIcon
+import de.nereide.stromschnelle.ui.common.PriorityBadge
+import de.nereide.stromschnelle.ui.common.PriorityDimension
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -58,10 +63,21 @@ fun CompletedScreen(
                 ListItem(
                     modifier = Modifier.fillMaxWidth(),
                     leadingContent = {
-                        Icon(
-                            imageVector = TodoIcon.fromKey(todo.iconKey).imageVector,
-                            contentDescription = null
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(2.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            PriorityBadge(
+                                value = todo.importance,
+                                dimension = PriorityDimension.IMPORTANCE,
+                                dimmed = true
+                            )
+                            PriorityBadge(
+                                value = todo.effort,
+                                dimension = PriorityDimension.EFFORT,
+                                dimmed = true
+                            )
+                        }
                     },
                     headlineContent = {
                         Text(
