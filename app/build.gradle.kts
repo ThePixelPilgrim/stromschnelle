@@ -85,6 +85,12 @@ android {
     }
 }
 
+// Room exports the schema JSON here so MigrationTestHelper can read it.
+// The directory is committed — the migration test needs version 1's schema.
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)

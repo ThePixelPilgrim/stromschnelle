@@ -6,35 +6,56 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * Ordering exists in two variants because SQLite cannot bind a column name:
+ * `ORDER BY :column` would sort by the literal string, silently. Each variant
+ * additionally needs a one-shot twin — see [visibleByImportanceList].
+ */
 @Dao
 interface TodoDao {
 
-    /**
-     * Active todos plus any recently-completed ones still inside the grace window.
-     * Active items (completedAt IS NULL) are ordered first, then by [Todo.sortIndex].
-     */
     @Query(
         """
         SELECT * FROM todos
         WHERE completedAt IS NULL OR completedAt >= :cutoff
-        ORDER BY (completedAt IS NULL) DESC, sortIndex ASC
+        ORDER BY (completedAt IS NULL) DESC, importance DESC, effort ASC, createdAt ASC
         """
     )
-    fun visible(cutoff: Long): Flow<List<Todo>>
+    fun visibleByImportance(cutoff: Long): Flow<List<Todo>>
 
     /**
-     * One-shot equivalent of [visible]. Reading committed rows directly (rather
-     * than awaiting a Flow's first emission) avoids Room invalidation timing, so
-     * the widget always renders the current state right after a write.
+     * One-shot equivalent of [visibleByImportance]. Reading committed rows
+     * directly (rather than awaiting a Flow's first emission) avoids Room
+     * invalidation timing, so the widget always renders the current state right
+     * after a write.
      */
     @Query(
         """
         SELECT * FROM todos
         WHERE completedAt IS NULL OR completedAt >= :cutoff
-        ORDER BY (completedAt IS NULL) DESC, sortIndex ASC
+        ORDER BY (completedAt IS NULL) DESC, importance DESC, effort ASC, createdAt ASC
         """
     )
-    suspend fun visibleList(cutoff: Long): List<Todo>
+    suspend fun visibleByImportanceList(cutoff: Long): List<Todo>
+
+    @Query(
+        """
+        SELECT * FROM todos
+        WHERE completedAt IS NULL OR completedAt >= :cutoff
+        ORDER BY (completedAt IS NULL) DESC, effort ASC, importance DESC, createdAt ASC
+        """
+    )
+    fun visibleByEffort(cutoff: Long): Flow<List<Todo>>
+
+    /** One-shot equivalent of [visibleByEffort]; see [visibleByImportanceList]. */
+    @Query(
+        """
+        SELECT * FROM todos
+        WHERE completedAt IS NULL OR completedAt >= :cutoff
+        ORDER BY (completedAt IS NULL) DESC, effort ASC, importance DESC, createdAt ASC
+        """
+    )
+    suspend fun visibleByEffortList(cutoff: Long): List<Todo>
 
     @Query("SELECT * FROM todos WHERE completedAt IS NOT NULL ORDER BY completedAt DESC")
     fun completed(): Flow<List<Todo>>
@@ -55,6 +76,9 @@ interface TodoDao {
     @Query("UPDATE todos SET completedAt = :ts WHERE id = :id")
     suspend fun setCompletedAt(id: Long, ts: Long?)
 
-    @Query("SELECT MAX(sortIndex) FROM todos")
-    suspend fun maxSortIndex(): Double?
+    @Query("UPDATE todos SET importance = :value WHERE id = :id")
+    suspend fun setImportance(id: Long, value: Int)
+
+    @Query("UPDATE todos SET effort = :value WHERE id = :id")
+    suspend fun setEffort(id: Long, value: Int)
 }

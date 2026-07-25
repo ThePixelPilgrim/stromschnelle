@@ -28,5 +28,15 @@ interface TodoRepository {
 
     suspend fun uncomplete(id: Long)
 
-    suspend fun reorder(orderedIds: List<Long>)
+    /** Sets importance directly; [value] is coerced into 1..3. */
+    suspend fun setImportance(id: Long, value: Int)
+
+    /** Sets effort directly; [value] is coerced into 1..3. */
+    suspend fun setEffort(id: Long, value: Int)
+
+    /** Rotates importance 1 -> 2 -> 3 -> 1. */
+    suspend fun cycleImportance(id: Long)
+
+    /** Rotates effort 1 -> 2 -> 3 -> 1. */
+    suspend fun cycleEffort(id: Long)
 }

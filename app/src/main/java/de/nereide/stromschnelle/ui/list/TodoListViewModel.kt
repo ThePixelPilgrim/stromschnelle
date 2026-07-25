@@ -37,13 +37,6 @@ class TodoListViewModel(
         }
     }
 
-    fun reorder(orderedIds: List<Long>) {
-        viewModelScope.launch {
-            repository.reorder(orderedIds)
-            refreshWidget(context)
-        }
-    }
-
     companion object {
         val Factory = viewModelFactory {
             initializer {
