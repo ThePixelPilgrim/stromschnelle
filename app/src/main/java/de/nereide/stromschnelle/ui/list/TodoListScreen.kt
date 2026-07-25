@@ -44,6 +44,7 @@ import de.nereide.stromschnelle.data.Todo
 import de.nereide.stromschnelle.data.TodoIcon
 import de.nereide.stromschnelle.ui.common.PriorityBadge
 import de.nereide.stromschnelle.ui.common.PriorityDimension
+import de.nereide.stromschnelle.ui.common.SortModeToggle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +63,10 @@ fun TodoListScreen(
             TopAppBar(
                 title = { Text("Stromschnelle") },
                 actions = {
+                    SortModeToggle(
+                        mode = uiState.sortMode,
+                        onToggle = viewModel::toggleSortMode
+                    )
                     IconButton(onClick = { menuExpanded = true }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "More")
                     }
