@@ -6,8 +6,12 @@ glance and re-ordering priorities as fast as they change.
 
 ## Features
 
-- Priority-sorted to-do list — reorder items by drag, priority is purely
-  positional (no due dates forcing sort order).
+- Priority-sorted to-do list — each item carries an importance and an effort
+  rating from 1 to 3. Order is derived from the two: importance descending,
+  then effort ascending, so the most important quick win is always on top.
+  A toggle in the header swaps which dimension dominates.
+- Ratings are changed with a single tap on a coloured badge, which rotates
+  1 → 2 → 3 → 1. This works in the app and directly in the widget.
 - Each to-do has a title, an optional description, and an icon chosen from
   a small curated icon set.
 - Mark items complete without deleting them: completed to-dos stay visible
@@ -55,8 +59,18 @@ Then build and test with the committed Gradle wrapper:
 
 ```bash
 ./gradlew assembleDebug        # produces app/build/outputs/apk/debug/app-debug.apk
-./gradlew testDebugUnitTest    # runs the repository unit tests
+./gradlew testDebugUnitTest    # pure-JVM unit tests, no device needed
 ```
+
+The database migration is covered by an instrumented test, which needs a
+connected device or a running emulator:
+
+```bash
+./gradlew connectedDebugAndroidTest    # requires a device (see `adb devices`)
+```
+
+Room's exported schemas live in `app/schemas/` and are committed — the
+migration test reads version 1's schema from there, so do not delete them.
 
 This build has been verified end-to-end from the CLI (APK assembled, unit
 tests green) with JDK 17 + SDK 35.
@@ -118,6 +132,9 @@ to-dos completed longer ago than the configurable grace period (default
 24 hours), so the active list stays uncluttered while the full history is
 retained for later review or data mining. There is intentionally no
 delete operation anywhere in `TodoDao` or `TodoRepository`.
+
+Completed to-dos keep their importance and effort ratings; they are part of
+the retained history.
 
 ## Project structure
 

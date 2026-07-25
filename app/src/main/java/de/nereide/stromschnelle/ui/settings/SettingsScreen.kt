@@ -2,8 +2,10 @@ package de.nereide.stromschnelle.ui.settings
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
@@ -12,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -70,6 +73,20 @@ fun SettingsScreen(
                     Text(text = option.label, modifier = Modifier.padding(start = 8.dp))
                 }
             }
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(
+                text = "Widget header title",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = uiState.widgetTitle,
+                onValueChange = viewModel::setWidgetTitle,
+                singleLine = true,
+                placeholder = { Text("No title") },
+                supportingText = { Text("Leave empty to show only the sort toggle") },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
