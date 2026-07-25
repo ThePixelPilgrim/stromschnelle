@@ -20,9 +20,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -79,13 +85,30 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
+
+            // The field edits a local draft rather than binding straight to the
+            // DataStore-backed flow. Binding directly would round-trip every
+            // keystroke through stateIn(WhileSubscribed) before it reappears on
+            // screen — fast typing can drop characters — and would rebuild every
+            // placed widget once per character. The draft is persisted when the
+            // field loses focus, and again on dispose so navigating away with the
+            // back button does not discard the edit.
+            var draft by rememberSaveable { mutableStateOf<String?>(null) }
+            val persisted = uiState.widgetTitle
+            val commit by rememberUpdatedState {
+                draft?.let { if (it != persisted) viewModel.setWidgetTitle(it) }
+            }
+            DisposableEffect(Unit) { onDispose { commit() } }
+
             OutlinedTextField(
-                value = uiState.widgetTitle,
-                onValueChange = viewModel::setWidgetTitle,
+                value = draft ?: persisted,
+                onValueChange = { draft = it },
                 singleLine = true,
                 placeholder = { Text("No title") },
                 supportingText = { Text("Leave empty to show only the sort toggle") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged { if (!it.isFocused) commit() }
             )
         }
     }

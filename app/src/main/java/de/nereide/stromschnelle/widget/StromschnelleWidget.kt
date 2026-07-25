@@ -107,8 +107,12 @@ class StromschnelleWidget : GlanceAppWidget() {
     }
 
     /**
-     * Title plus sort-mode toggle. A blank title renders no text at all — that is
-     * how the header's text space is reclaimed without losing the toggle.
+     * Title plus sort-mode toggle.
+     *
+     * A blank title renders no visible text; the empty [Text] still claims the
+     * flexible width, but that changes nothing on screen because the chips are
+     * fixed-size and right-aligned either way. Setting the title to empty is how
+     * you get a header that shows only the toggle.
      */
     @Composable
     private fun HeaderRow(title: String, sortMode: SortMode) {

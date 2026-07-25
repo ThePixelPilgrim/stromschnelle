@@ -19,7 +19,6 @@
     <string name="todo_no_completed">No completed to-dos yet.</string>
     <string name="todo_mark_complete">Mark as complete</string>
     <string name="todo_mark_incomplete">Mark as not complete</string>
-    <string name="todo_drag_handle_description">Drag to reorder</string>
 
     <!-- Todo edit / detail screen -->
     <string name="todo_edit_title_new">New to-do</string>
